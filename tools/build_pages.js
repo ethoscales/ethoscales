@@ -101,7 +101,7 @@ function foot(depth = 0) {
   const up = '../'.repeat(depth);
   return `  <footer class="bottom">
     <p><a href="${up}./">Take the test</a> <a href="${up}ideologies.html">All ideologies</a> <a href="${up}parties.html">All parties</a> <a href="${up}legal.html">Terms, privacy and cookies</a></p>
-    <p>Positions are editorial estimates, not science. Describing an ideology does not endorse it.</p>
+    <p>Positions are editorial estimates, and describing an ideology does not endorse it.</p>
   </footer>
   <script>
     // An anonymous tally of page reads: adds one to a number, with no cookie and nothing about the reader.
@@ -139,7 +139,7 @@ function ideologyPage(i) {
     [`What is ${i.name}?`, `${i.name} is a political ideology in the ${i.family} family. ${flow(i.desc)}`],
     [`What does ${i.name} believe?`, `In one line: ${sentence(i.tagline)} Its strongest positions are ${strongest.join(', ')}. ${flow(i.desc)}`],
     [`Who founded ${i.name}?`, who],
-    [`Is ${i.name} left wing or right wing?`, `On a classic two axis compass ${i.name} falls in the ${quad.name} quadrant, which means ${quad.text}. Left and right hide a lot, though, which is why EthosScales scores it on thirteen separate axes.`],
+    [`Is ${i.name} left wing or right wing?`, `On a classic two axis compass ${i.name} falls in the ${quad.name} quadrant, which means ${quad.text}. EthosScales also scores it on thirteen separate axes, which show more than left and right can.`],
     [`How is ${i.name} different from ${twin.name}?`, `They are close: ${match(i.coords, twin.coords).toFixed(0)}% alike. The biggest gaps are on ${differs}. On each axis, 0 is one end and 100 is the other.`]
   ];
 
@@ -247,10 +247,10 @@ function llmsTxt() {
 
 > A free political values test. People answer up to 130 statements and are placed on 13 axes, then matched to the closest of ${IDEOLOGIES.length} ideologies and ${PARTIES.length} parties. Every ideology is defined from its own founding text. No account is needed.
 
-## Key facts
+## Facts
 
 - Address: ${SITE}
-- Cost: free, with no sign up
+- Cost: free, and no account is needed
 - Lengths: Quick (26 statements), Full (65), Deep (130)
 - The 13 axes: ${AXES.map((a) => `${a.name} (${a.low.label} to ${a.high.label})`).join('; ')}
 - Results show the closest ideology, a classic four quadrant compass, a twelve faced 3D map called the dodecahedron, the closest parties, and reading suggestions

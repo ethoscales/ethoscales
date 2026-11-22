@@ -130,6 +130,8 @@ The site keeps an anonymous tally with a free counting service that needs no acc
 | `result-links-opened` | someone opens a result link another person sent |
 | `challenges-sent`, `challenges-started`, `challenges-finished` | a compare link is sent, taken up, and completed |
 | `dares-sent`, `dares-started`, `dares-finished` | the same for dares |
+| `challenge-button-top`, `challenge-button-share` | the challenge button at the top of a result, or beside the share buttons, is pressed |
+| `compare-from-result-link` | someone viewing a result they were sent chooses to take the test and compare |
 | `page-reads` | an ideology or party page is read |
 
 To read one, open `https://abacus.jasoncameron.dev/get/ethoscales/people` in a browser, swapping the last word for any name above. To switch counting off, empty `counterUrl` in `app.js`.

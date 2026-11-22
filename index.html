@@ -497,12 +497,26 @@
     .challenge-banner em { font-style: normal; text-decoration: underline; text-underline-offset: 3px; }
     .challenge-banner .what { margin-top: 8px; font-size: 14px; }
     .challenge-banner button { background: none; border: 0; padding: 0; margin-top: 10px; font-weight: 900; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; }
-    .challenge { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px 28px; padding: 20px 22px; align-items: center; }
-    .board .challenge h2 { margin-bottom: 8px; }
-    .challenge p { font-weight: 700; font-size: 15px; }
-    .challenge-acts { display: flex; flex-direction: column; gap: 12px; align-items: stretch; min-width: 0; }
-    .challenge-acts label { font-weight: 900; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
-    .challenge-acts select { font: inherit; font-weight: 700; font-size: 15px; letter-spacing: 0; text-transform: none; background: var(--paper); color: var(--ink); border: 3px solid var(--ink); border-radius: 0; padding: 9px 8px; width: 100%; min-width: 0; }
+    .btn.is-yellow { background: #F5B700; color: var(--ink); }
+    .verdict-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; margin: 22px 0 6px; }
+    .verdict-acts .btn { --btn-shadow: var(--red); font-size: 16px; padding: 14px 22px; }
+    .verdict-acts span { font-weight: 700; font-size: 15px; max-width: 30ch; }
+    .challenge { background: #F5B700; padding: 24px; }
+    .board .challenge > h2 { font-size: clamp(32px, 4.6vw, 52px); margin-bottom: 20px; max-width: 30ch; }
+    .ch-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+    .ch-card { border: var(--rule); padding: 20px; display: flex; flex-direction: column; gap: 12px; align-items: flex-start; min-width: 0; }
+    .ch-card.is-compare { background: var(--red); color: var(--paper); }
+    .ch-card.is-dare { background: var(--ink); color: var(--paper); }
+    .ch-card .label { color: #F5B700; }
+    .ch-card h3 { font-size: clamp(26px, 3.4vw, 36px); line-height: 1; }
+    .ch-card p { font-weight: 700; font-size: 15px; }
+    .ch-card .btn { --btn-shadow: #F5B700; margin-top: auto; }
+    .ch-card.is-compare .btn { --btn-shadow: var(--ink); }
+    .ch-card label { font-weight: 900; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; display: flex; flex-direction: column; gap: 6px; width: 100%; }
+    .ch-card select { font: inherit; font-weight: 700; font-size: 15px; letter-spacing: 0; text-transform: none; background: var(--paper); color: var(--ink); border: 3px solid var(--paper); border-radius: 0; padding: 9px 8px; width: 100%; min-width: 0; }
+    .ch-done { background: var(--paper); color: var(--ink); border: 3px solid var(--ink); padding: 8px 12px; font-weight: 900; font-size: 14px; }
+    .ch-done[hidden] { display: none; }
+    .challenge[hidden], #share-challenge[hidden] { display: none; }
     .challenge-result { background: var(--ink); color: var(--paper); padding: 22px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 24px; align-items: center; box-shadow: 8px 8px 0 var(--red); }
     .challenge-result .label { color: #F5B700; }
     .board .challenge-result h2 { font-size: clamp(32px, 5vw, 56px); margin: 6px 0 8px; overflow-wrap: anywhere; }
@@ -510,7 +524,7 @@
     .challenge-result .big { font-family: var(--display); font-size: clamp(64px, 11vw, 120px); line-height: 0.9; color: #F5B700; font-variant-numeric: tabular-nums; text-align: right; }
     .challenge-result .acts { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; }
     .challenge-result .btn { --btn-shadow: var(--red); }
-    @media (max-width: 760px) { .challenge, .challenge-result { grid-template-columns: minmax(0, 1fr); } .challenge-result .big { text-align: left; } }
+    @media (max-width: 760px) { .ch-cards, .challenge-result { grid-template-columns: minmax(0, 1fr); } .challenge-result .big { text-align: left; } .challenge { padding: 18px; } }
 
     /* ---------- Terms bar, survey, classic compass, shelf, parties ---------- */
     .terms-note { margin-top: 14px; font-size: 13px; font-weight: 700; opacity: 0.85; max-width: 46ch; }
@@ -741,6 +755,10 @@
           <p id="match-tagline"></p>
           <p id="match-desc"></p>
           <p id="match-source"></p>
+          <div class="verdict-acts">
+            <button id="hero-challenge" type="button" class="btn is-yellow">Challenge a friend</button>
+            <span id="hero-challenge-note">Send a link and see how alike you two really are.</span>
+          </div>
           <p class="correct"><a id="match-page" href="ideologies.html">Read the full page</a></p>
           <p class="correct"><a href="https://github.com/ethoscales/ethoscales/issues/new" target="_blank" rel="noopener">Think this definition is wrong? Suggest a correction</a></p>
           <div class="vec"><span id="result-source"></span><span id="result-vector" class="num"></span></div>
@@ -755,17 +773,26 @@
       <div class="wrap board">
         <div id="challenge-result" class="panel challenge-result" hidden></div>
 
-        <div class="panel challenge">
-          <div>
-            <h2 class="display">Challenge a friend</h2>
-            <p>Know someone who would get something completely different? Send them a link. Once they finish, you will both see how alike you are. Or dare them to answer like a believer in something else, and see which of you gets closer.</p>
-          </div>
-          <div class="challenge-acts">
-            <button id="ch-compare" type="button" class="btn is-red">Compare with me</button>
-            <label for="ch-ideology">Or dare them to answer as
-              <select id="ch-ideology"></select>
-            </label>
-            <button id="ch-dare" type="button" class="btn">Send the dare</button>
+        <div class="panel challenge" id="challenge">
+          <h2 class="display">Who do you know that would get something completely different?</h2>
+          <div class="ch-cards">
+            <div class="ch-card is-compare">
+              <div class="label">Compare</div>
+              <h3 class="display">See how alike you two are</h3>
+              <p>Send them this link. When they finish the test, you both see where you agree, where you clash, and each other on the maps.</p>
+              <button id="ch-compare" type="button" class="btn is-paper is-big">Send the challenge</button>
+              <p class="ch-done" id="ch-compare-done" role="status" hidden></p>
+            </div>
+            <div class="ch-card is-dare">
+              <div class="label">Dare</div>
+              <h3 class="display">Could they pass as one of these?</h3>
+              <p>They answer in character and get a score. <span id="ch-beat"></span></p>
+              <label for="ch-ideology">Dare them to answer as
+                <select id="ch-ideology"></select>
+              </label>
+              <button id="ch-dare" type="button" class="btn is-red is-big">Send the dare</button>
+              <p class="ch-done" id="ch-dare-done" role="status" hidden></p>
+            </div>
           </div>
         </div>
 
@@ -858,6 +885,7 @@
               <button id="btn-share" type="button" class="btn" hidden>Share to story</button>
               <button id="btn-copy" type="button" class="btn">Copy share link</button>
               <button id="btn-download" type="button" class="btn is-paper">Download result card (.png)</button>
+              <button id="share-challenge" type="button" class="btn is-yellow">Challenge a friend</button>
               <button id="btn-retake" type="button" class="btn is-paper">Retake</button>
             </div>
           </div>

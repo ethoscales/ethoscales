@@ -923,8 +923,22 @@
     const mine = state.answers.length > 0;
     const top = state.matches[0].ideology;
     const options = IDEOLOGIES.filter(canDare).sort((a, b) => a.name.localeCompare(b.name));
-    const preset = c.target ? c.target.id : (canDare(top) ? top.id : options[0].id);
+    // Daring someone to be your opposite is the most fun, so that is what the list opens on.
+    const opposite = state.matches.slice().reverse().find((m) => canDare(m.ideology));
+    const preset = c.target ? c.target.id : (opposite ? opposite.ideology.id : options[0].id);
     el.chIdeology.innerHTML = options.map((i) => `<option value="${i.id}"${i.id === preset ? ' selected' : ''}>${i.name}</option>`).join('');
+
+    renderDareNumber();
+    // Someone looking at a result they were sent has nothing of their own to send yet,
+    // so for them the button becomes an invitation to take the test and compare.
+    $('#challenge').hidden = !mine;
+    $('#hero-challenge').textContent = mine ? 'Challenge a friend' : 'Take the test and compare';
+    $('#hero-challenge-note').textContent = mine
+      ? 'Send a link and see how alike you two really are.'
+      : 'Answer it yourself and see how alike you are to this result.';
+    $('#share-challenge').hidden = !mine;
+    $('#ch-compare-done').hidden = true;
+    $('#ch-dare-done').hidden = true;
 
     const box = el.challengeResult;
     box.hidden = !(c.target || (c.vs && state.friend && mine));
@@ -963,35 +977,59 @@
   const pageBase = () => window.location.origin + window.location.pathname;
 
   /** Hand a link to the phone's share sheet, or copy it where there is none. */
+  /**
+   * Hand a link to the phone's share sheet, or copy it where there is none.
+   * Resolves to 'shared', 'copied', 'cancelled' or 'failed' so the page can say what happened.
+   */
   async function sendLink(url, text) {
     try {
-      if (navigator.share) { await navigator.share({ title: 'EthosScales', text, url }); return; }
+      if (navigator.share) { await navigator.share({ title: 'EthosScales', text, url }); return 'shared'; }
     } catch (err) {
-      if (err && err.name === 'AbortError') return;
+      if (err && err.name === 'AbortError') return 'cancelled';
     }
     try {
       if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(url);
       else legacyCopy(url);
       toast('Challenge link copied');
+      return 'copied';
     } catch (err) {
       toast('Copy failed. Try again.');
+      return 'failed';
     }
   }
 
-  function sendCompareChallenge() {
-    count('challenges-sent');
-    const url = pageBase() + '?vs=' + AXES.map((a) => state.scores[a.key]).join(',');
-    sendLink(url, `I got ${state.matches[0].ideology.name} on EthosScales. Take it and let us see how alike we actually are.`);
+  /** Say what just happened right beside the button, since a toast is easy to miss. */
+  function showSent(node, outcome) {
+    if (!node || outcome === 'cancelled') return;
+    node.hidden = false;
+    node.textContent = outcome === 'shared' ? 'Sent. You will see how you compare once they finish.'
+      : outcome === 'copied' ? 'Link copied. Now paste it to a friend.'
+      : 'That did not work. Try again.';
   }
 
-  function sendDare(id) {
+  async function sendCompareChallenge(doneNode) {
+    count('challenges-sent');
+    const url = pageBase() + '?vs=' + AXES.map((a) => state.scores[a.key]).join(',');
+    const outcome = await sendLink(url, `I got ${state.matches[0].ideology.name} on EthosScales. Take it and let us see how alike we actually are.`);
+    showSent(doneNode, outcome);
+  }
+
+  async function sendDare(id, doneNode) {
     const target = IDEOLOGIES.find((i) => i.id === id && canDare(i));
     if (!target) return;
     count('dares-sent');
     // The score to beat is how close the sender is. In a dare they answered, that is their attempt.
     const best = fmt(Math.max(similarity(state.scores, target.coords), state.challenge.target && state.challenge.target.id === id && state.challenge.best !== null ? state.challenge.best : 0));
     const url = `${pageBase()}?target=${target.id}&best=${best}`;
-    sendLink(url, `Bet you cannot answer like a true believer in ${target.name}. I got ${best}%. Think you can beat that?`);
+    const outcome = await sendLink(url, `Bet you cannot answer like a true believer in ${target.name}. I got ${best}%. Think you can beat that?`);
+    showSent(doneNode, outcome);
+  }
+
+  /** The line under the dare: how close the sender is to the ideology picked, which is the number to beat. */
+  function renderDareNumber() {
+    const target = IDEOLOGIES.find((i) => i.id === el.chIdeology.value);
+    if (!target || !state.scores) return;
+    el.chBeat.textContent = `You are ${fmt(similarity(state.scores, target.coords))}% close to ${target.name}, so that is the number they have to beat.`;
   }
 
   function startDare(id, best) {
@@ -1005,7 +1043,7 @@
 
   function onChallengeAction(kind) {
     const c = state.challenge;
-    if (kind === 'pass') sendDare(c.target.id);
+    if (kind === 'pass') sendDare(c.target.id, null);
     else if (kind === 'again') startDare(c.target.id, c.best);
     else if (kind === 'take') startDare(c.target.id, round1(similarity(state.scores, c.target.coords)));
     else if (kind === 'back') sendLink(window.location.href, `I got ${state.matches[0].ideology.name} on EthosScales. Here is my result.`);
@@ -2219,6 +2257,7 @@
     el.challengeBanner = $('#challenge-banner');
     el.challengeResult = $('#challenge-result');
     el.chIdeology = $('#ch-ideology');
+    el.chBeat = $('#ch-beat');
     el.surveyForm = $('#survey-form');
     el.surveyTitle = $('#survey-title');
     el.surveyPitch = $('#survey-pitch');
@@ -2302,8 +2341,30 @@
     $('#terms-ok').addEventListener('click', acceptTerms);
     el.challengeBanner.addEventListener('click', (e) => { if (e.target.closest('[data-drop]')) dropChallenge(); });
     el.challengeResult.addEventListener('click', (e) => { const btn = e.target.closest('[data-ch]'); if (btn) onChallengeAction(btn.dataset.ch); });
-    $('#ch-compare').addEventListener('click', sendCompareChallenge);
-    $('#ch-dare').addEventListener('click', () => sendDare(el.chIdeology.value));
+    $('#ch-compare').addEventListener('click', () => sendCompareChallenge($('#ch-compare-done')));
+    $('#ch-dare').addEventListener('click', () => sendDare(el.chIdeology.value, $('#ch-dare-done')));
+    el.chIdeology.addEventListener('change', renderDareNumber);
+    // The same challenge is offered at the top of the result and again beside the share buttons.
+    $('#hero-challenge').addEventListener('click', async () => {
+      if (!state.answers.length) {
+        // A visitor on someone else's result: start the test with that result as the one to compare with.
+        count('compare-from-result-link');
+        const vs = Object.assign({}, state.scores);
+        retake();
+        state.challenge = { vs, target: null, best: null };
+        try { window.history.pushState({}, '', window.location.pathname + '?vs=' + AXES.map((a) => vs[a.key]).join(',')); } catch (err) { /* ignore */ }
+        renderChallengeBanner();
+        return;
+      }
+      count('challenge-button-top');
+      const note = $('#hero-challenge-note');
+      const url = pageBase() + '?vs=' + AXES.map((a) => state.scores[a.key]).join(',');
+      count('challenges-sent');
+      const outcome = await sendLink(url, `I got ${state.matches[0].ideology.name} on EthosScales. Take it and let us see how alike we actually are.`);
+      if (outcome === 'copied') note.textContent = 'Link copied. Now paste it to a friend.';
+      else if (outcome === 'shared') note.textContent = 'Sent. You will see how you compare once they finish.';
+    });
+    $('#share-challenge').addEventListener('click', () => { count('challenge-button-share'); $('#challenge').scrollIntoView({ behavior: REDUCED_MOTION ? 'auto' : 'smooth', block: 'center' }); });
     el.surveyForm.addEventListener('submit', (e) => { e.preventDefault(); completeSurvey(CONFIG.collectUrl ? 'share' : 'keep'); });
     el.surveyKeep.addEventListener('click', () => completeSurvey('keep'));
     $('#survey-skip').addEventListener('click', () => completeSurvey('skip'));

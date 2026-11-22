@@ -842,7 +842,7 @@
   function renderHighlights(scores) {
     const ranked = AXES.map((a) => ({ a, v: scores[a.key], spread: Math.abs(scores[a.key] - 50) })).sort((p, q) => q.spread - p.spread);
     if (ranked[0].spread < 8) {
-      el.highlights.innerHTML = '<div class="hl-flat"><b>Dead centre</b><span>You sit close to the middle on all thirteen axes. No strong positions to report.</span></div>';
+      el.highlights.innerHTML = '<div class="hl-flat"><b>Dead centre</b><span>You sit close to the middle on all thirteen axes, so there are no strong positions to report.</span></div>';
       return;
     }
     el.highlights.innerHTML = ranked.slice(0, 3).map(({ a, v }) => {
@@ -934,7 +934,7 @@
     $('#challenge').hidden = !mine;
     $('#hero-challenge').textContent = mine ? 'Challenge a friend' : 'Take the test and compare';
     $('#hero-challenge-note').textContent = mine
-      ? 'Send a link and see how alike you two really are.'
+      ? 'Send a link and see how alike you two are.'
       : 'Answer it yourself and see how alike you are to this result.';
     $('#share-challenge').hidden = !mine;
     $('#ch-compare-done').hidden = true;
@@ -1188,7 +1188,7 @@
       const gap = Math.abs(base[far.key] - 50);
       line = `You call yourself a <b>Centrist</b>. Your furthest score from the middle is ${far.name} at ${fmt(base[far.key])}. ${gap <= 20 ? 'The label fits.' : 'That is a long way from the centre on that one.'}`;
     } else if (option) {
-      line = 'You did not pick a label. Fair enough: your result is built from your answers, not from a name.';
+      line = 'You did not pick a label. Fair enough, your result comes from your answers either way.';
     }
 
     const changed = Object.keys(survey.changes);
@@ -1554,7 +1554,7 @@
     renderDimensionGuide(0);
     el.plotKey.hidden = true;
     el.plotCaption.textContent = 'Your Dodecahedron';
-    el.plotNote.textContent = 'Twelve faces, one end of an axis on each. Every dot is an ideology, pulled toward the faces it scores high on. The red dot is you. Point near a dot to see what it is and tap it to pin its name. Opposite faces hold axes that move together, so they never cancel out. Dots are spread out so the middle is readable, and Trade is left off this view.';
+    el.plotNote.textContent = 'The shape has twelve faces, with one end of an axis on each. Every dot is an ideology, pulled toward the faces it scores high on. The red dot is you. Point near a dot to see what it is and tap it to pin its name. Opposite faces hold axes that move together, so they never cancel out. Dots are spread out so the middle is readable, and Trade is left off this view.';
     if (el.plot.dataset.kind !== 'dodeca') window.Plotly.purge(el.plot);
     el.plot.dataset.kind = 'dodeca';
     const eye = DODECA.render({
@@ -1620,7 +1620,7 @@
       ? `All ${AXES.length} axes in one map`
       : `Showing 3 of ${AXES.length} axes`;
     el.plotNote.textContent = mapMode
-      ? `Every square is an ideology, colored by family. The red dot is you. This map squeezes all ${AXES.length} axes into 3 dimensions, keeping ${MAP.captured}% of the differences, so squares that sit close together really are close overall. The faint lines cross at the exact centre. It turns slowly so you can read the depth. Touch it to take over, then drag to spin and scroll to zoom.`
+      ? `Every square is an ideology, colored by family. The red dot is you. This map squeezes all ${AXES.length} axes into 3 dimensions, keeping ${MAP.captured}% of the differences, so squares that sit close together are close overall. The faint lines cross at the exact centre. It turns slowly so you can read the depth. Touch it to take over, then drag to spin and scroll to zoom.`
       : 'Every square is an ideology, colored by family. The red dot is you. This view shows 3 axes at a time, so two squares that look close here can be far apart on the others. The faint lines cross at 50 on each axis. Drag to spin, scroll to zoom.';
 
     if (typeof window.Plotly === 'undefined') {

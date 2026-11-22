@@ -2,10 +2,10 @@
 
 > A free political values test. People answer up to 130 statements and are placed on 13 axes, then matched to the closest of 242 ideologies and 268 parties. Every ideology is defined from its own founding text. No account is needed.
 
-## Key facts
+## Facts
 
 - Address: https://ethoscales.github.io/ethoscales/
-- Cost: free, with no sign up
+- Cost: free, and no account is needed
 - Lengths: Quick (26 statements), Full (65), Deep (130)
 - The 13 axes: Economy (Market to Planned); Ownership (Private to Collective); Rights (Liberty to Security); Government (Democracy to Autocracy); Structure (Decentralised to Centralised); Nation (Internationalist to Nationalist); Immigration (Multiculturalist to Assimilationist); Values (Progressive to Traditional); Technology (Accelerationist to Precautionary); Environment (Industrialist to Environmentalist); Religion (Secular to Religious); Military (Pacifist to Militarist); Trade (Free Trade to Protectionist)
 - Results show the closest ideology, a classic four quadrant compass, a twelve faced 3D map called the dodecahedron, the closest parties, and reading suggestions
